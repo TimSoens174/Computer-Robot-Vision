@@ -86,9 +86,13 @@ def color_correction(picture):
 
             # Farbkorrektur anwenden
             corrected_image = image.copy()
-            corrected_image[:, :, 0] = np.clip(c_0*(image[:, :, 0] - c_b), 0, 255)  # Blau-Kanal
-            corrected_image[:, :, 1] = np.clip(c_0*(image[:, :, 1] - c_g), 0, 255)  # Grün-Kanal
-            corrected_image[:, :, 2] = np.clip(c_0*(image[:, :, 2] - c_r), 0, 255)  # Rot-Kanal
+            #corrected_image[:, :, 0] = np.clip(c_0*(image[:, :, 0] - c_b), 0, 255)  # Blau-Kanal
+            #corrected_image[:, :, 1] = np.clip(c_0*(image[:, :, 1] - c_g), 0, 255)  # Grün-Kanal
+            #corrected_image[:, :, 2] = np.clip(c_0*(image[:, :, 2] - c_r), 0, 255)  # Rot-Kanal
+
+            corrected_image[:, :, 0] = np.clip((image[:, :, 0]/c_0 - c_b), 0, 255)  # Blau-Kanal
+            corrected_image[:, :, 1] = np.clip((image[:, :, 1]/c_0 - c_g), 0, 255)  # Grün-Kanal
+            corrected_image[:, :, 2] = np.clip((image[:, :, 2]/c_0 - c_r), 0, 255)  # Rot-Kanal
 
             # Ergebnisse anzeigen
             #cv2.imshow("Originalbild", image)
