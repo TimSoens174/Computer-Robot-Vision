@@ -19,6 +19,39 @@ def select_roi(event, x, y, flags, param):
         drawing = False
         roi = [(ix, iy), (x, y)]
 
+def histogramm(image, roi_coords):
+    x1, y1 = roi_coords[0]
+    x2, y2 = roi_coords[1]
+    x1, x2 = min(x1, x2), max(x1, x2)
+    y1, y2 = min(y1, y2), max(y1, y2)
+    
+    # ROI aus dem Bild extrahieren
+    roi = image[y1:y2, x1:x2]
+
+    # Histogramm für das ROI berechnen (für jeden Farbkanal)
+    colors = ('b', 'g', 'r')
+    hist_size = 256
+    hist_img_width = 512
+    hist_img_height = 200
+
+    histogram_image = np.zeros((hist_img_height, hist_img_width, 3), dtype=np.uint8)
+    for i, color in enumerate(colors):
+        hist = cv2.calcHist([roi], [i], None, [hist_size], [0, 256])
+        cv2.normalize(hist, hist, 0, hist_img_height, cv2.NORM_MINMAX)
+        
+        # Histogramm ins Bild zeichnen
+        bin_width = int(hist_img_width / hist_size)
+        for j in range(1, hist_size):
+            cv2.line(
+                image,
+                (bin_width * (j - 1), hist_img_height - int(hist[j - 1])),
+                (bin_width * j, hist_img_height - int(hist[j])),
+                (255 if color == 'b' else 0, 255 if color == 'g' else 0, 255 if color == 'r' else 0),
+                thickness=1,
+            )
+
+    return histogram_image
+
 def color_correction(picture):
 
     # Bild laden
@@ -93,6 +126,8 @@ def color_correction(picture):
             corrected_image[:, :, 0] = np.clip((image[:, :, 0]/c_0 - c_b), 0, 255)  # Blau-Kanal
             corrected_image[:, :, 1] = np.clip((image[:, :, 1]/c_0 - c_g), 0, 255)  # Grün-Kanal
             corrected_image[:, :, 2] = np.clip((image[:, :, 2]/c_0 - c_r), 0, 255)  # Rot-Kanal
+
+            corrected_image = histogramm(corrected_image, roi)
 
             # Ergebnisse anzeigen
             #cv2.imshow("Originalbild", image)

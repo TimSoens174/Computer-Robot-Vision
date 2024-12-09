@@ -8,7 +8,8 @@ image_path = "Pictures2/Picture 10.jpg"  # Update the path if needed
 image = cv2.imread(image_path)
 
 # Global variables for trackbars
-params = {"Blur Kernel": 5, "Canny Low": 50, "Canny High": 150}
+#params = {"Blur Kernel": 5, "Canny Low": 50, "Canny High": 150}
+params = {"Blur Kernel": 5, "Canny Low": 25, "Canny High": 180}
 
 # Define processing pipeline
 def process_image(kernel_size, canny_low, canny_high):
@@ -31,7 +32,8 @@ def process_image(kernel_size, canny_low, canny_high):
     # Find contours and hierarchy
     contours, hierarchy = cv2.findContours(edges_refined, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     all_contours = image.copy()
-    cv2.drawContours(all_contours, contours, -1, (0, 255, 0), 1)
+    all_contours = cv2.drawContours(all_contours, contours, -1, (0, 255, 0), 1)
+    cv2.imshow('Kontur', all_contours)
 
     # Filter contours with specific properties
     parent_contours = []
