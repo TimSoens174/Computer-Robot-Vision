@@ -11,7 +11,7 @@ def get_hsv_value(event, x, y, flags, param):
 
 # Lade ein Bild
 ordner_pfad = 'Pictures'
-bild_datei = 'Picture 8.jpg'  # Name der Bilddatei im Ordner
+bild_datei = 'Picture 7.jpg'  # Name der Bilddatei im Ordner
 bild_pfad = os.path.join(ordner_pfad, bild_datei)
 bild = cv2.imread(bild_pfad)
 
