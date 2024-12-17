@@ -86,7 +86,7 @@ def filter(image):
     farb_bereiche = {
         "Rot": [(np.array([0, 90, 70]), np.array([5, 255, 255])),
                 (np.array([170, 90, 70]), np.array([180, 255, 255]))],
-        "Blau": [(np.array([100, 130, 70]), np.array([140, 255, 255]))],
+        "Blau": [(np.array([95, 130, 70]), np.array([140, 255, 255]))],
         "Gelb": [(np.array([20, 20, 100]), np.array([38, 255, 255]))],
         "Grun": [(np.array([40, 50, 70]), np.array([90, 255, 255]))],
         "Orange": [(np.array([5, 130, 70]), np.array([20, 255, 255]))],
@@ -111,7 +111,7 @@ def filter(image):
         maske = cv2.morphologyEx(maske, cv2.MORPH_OPEN, np.ones((5,5),np.uint8))
         maske = cv2.morphologyEx(maske, cv2.MORPH_CLOSE, np.ones((5,5),np.uint8))
 
-        if farbe == "Rot":
+        if farbe == "Blau":
             cv2.imshow(f"test {i}", maske)
 
         # Konturen der Objekte finden
@@ -120,7 +120,7 @@ def filter(image):
         filtered_konturen = []
         for kontur in konturen:
             x, y, w, h = cv2.boundingRect(kontur)
-            if (w * h > 3000) & (w * h < 10000) & (w / h > 0.2) & (w / h < 1.2) & ( cv2.contourArea(kontur)/(w * h) > 0.7):
+            if (w * h > 100) & (w * h < 10000) & (w / h > 0.7) & (w / h < 1.3) & ( cv2.contourArea(kontur)/(w * h) > 0.5):
                 filtered_konturen.append(kontur)
         
         for kontur in filtered_konturen:

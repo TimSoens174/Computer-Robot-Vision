@@ -2,7 +2,7 @@ import cv2
 
 def main():
     # Kamera öffnen (0 steht für die Standardkamera)
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
 
     # Überprüfen, ob die Kamera geöffnet werden konnte
     if not cap.isOpened():

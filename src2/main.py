@@ -5,7 +5,7 @@ import Contour
 import Color
 import time
 
-livecam = False
+livecam = True
 camera = 1
 image_path = os.path.join("Pictures", "Picture 10.jpg")
 color_correction = True
@@ -32,7 +32,7 @@ def main(image):
 
     if(outer_correction_frame[2] != 0 and color_correction == True):
         # Kleinere graue Rahmen berechnen
-        frame_image, inner_correction_frame = Contour.small_greyFrame(frame_image, outer_correction_frame, 0.85)
+        frame_image, inner_correction_frame = Contour.small_greyFrame(frame_image, outer_correction_frame, 0.9)
 
         # Korrekturwerte berechnen
         correction_values = Color.getCorrectionValues(cut_image, outer_correction_frame, inner_correction_frame)
@@ -41,7 +41,7 @@ def main(image):
         # Farbkorrektur
         corrected_image = Color.correctImage(cut_image, color_correction_ground_truth, correction_values)
 
-        Color.showHistogram(cut_image, corrected_image, outer_correction_frame, inner_correction_frame)
+        #Color.showHistogram(cut_image, corrected_image, outer_correction_frame, inner_correction_frame)
 
         # Farbfilter
         result_image, erg = Color.filter(corrected_image)
@@ -51,12 +51,12 @@ def main(image):
         result_image, erg = Color.filter(cut_image)
         
 
-    #cv2.imshow('corr', corrected_image)
+    cv2.imshow('corr', frame_image)
 
     # Bild anzeigen
     cv2.imshow("Rubik's Cube mit Legende", result_image)
-    if erg:
-        print(erg)
+    #if erg:
+        #print(erg)
 
     return
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
                 break
 
             main(frame)
-            time.sleep(0.3)
+            time.sleep(1)
 
             if cv2.waitKey(1) & 0xFF == 27:
                 break

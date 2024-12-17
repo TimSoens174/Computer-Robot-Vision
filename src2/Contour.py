@@ -37,11 +37,20 @@ def detect_outer_gray_frame(image):
             if area > max_area:  # Nur die größte Kontur speichern
                 max_area = area
                 largest_contour = approx
-
+   
     if largest_contour is not None:
         # Berechne die Bounding Box der Kontur
         x, y, w, h = cv2.boundingRect(largest_contour)
+        Faktor = 0.9
+        center_x, center_y = x + w // 2, y + h // 2  # Mittelpunkt der Box
+        small_w, small_h = int(w * Faktor), int(h * Faktor)    # 15% kleinere Breite und Höhe
+        small_x, small_y = center_x - small_w // 2, center_y - small_h // 2  # Obere linke Ecke
 
+        
+        x = small_x
+        y = small_y
+        w = small_w
+        h = small_h
         # Zeichne die ursprüngliche Bounding Box (grün)
         bild = cv2.rectangle(bild, (x, y), (x + w, y + h), (0, 255, 0), 2)
     

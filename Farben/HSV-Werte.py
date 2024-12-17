@@ -10,8 +10,8 @@ def get_hsv_value(event, x, y, flags, param):
         print(f"HSV-Werte: H={hsv_value[0]}, S={hsv_value[1]}, V={hsv_value[2]}")
 
 # Lade ein Bild
-ordner_pfad = 'Pictures'
-bild_datei = 'Picture 7.jpg'  # Name der Bilddatei im Ordner
+ordner_pfad = 'Pictures2'
+bild_datei = 'Picture 0.jpg'  # Name der Bilddatei im Ordner
 bild_pfad = os.path.join(ordner_pfad, bild_datei)
 bild = cv2.imread(bild_pfad)
 
