@@ -75,5 +75,5 @@ def main(image_path):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    image_path = os.path.join("..", "Logitech Webcam", "Picture 1.jpg")
+    image_path = os.path.join("Pictures", "Picture 3.jpg")
     main(image_path)
