@@ -116,6 +116,8 @@ def color_filter(image):
 
         # if farbe == "Rot":
         #     cv2.imshow(f"test {i}", maske)
+        #     cv2.waitKey(0)
+        #     cv2.destroyAllWindows()
 
         # Konturen der Objekte finden
         konturen, hierarchie = cv2.findContours(maske, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -123,7 +125,7 @@ def color_filter(image):
         filtered_konturen = []
         for kontur in konturen:
             x, y, w, h = cv2.boundingRect(kontur)
-            if (w * h > 3000) & (w * h < 10000) & (w / h > 0.2) & (w / h < 1.2) & ( cv2.contourArea(kontur)/(w * h) > 0.7):
+            if (w * h > 300) & (w * h < 10000) & (w / h > 0.2) & (w / h < 1.2) & ( cv2.contourArea(kontur)/(w * h) > 0.7):
                 filtered_konturen.append(kontur)
         
         for kontur in filtered_konturen:
