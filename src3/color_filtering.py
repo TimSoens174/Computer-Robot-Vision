@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def getMaskPixels(image, outer_correction_frame, inner_correction_frame):
+    
     height, width = image.shape[:2]
 
     # Maske für die große Box
@@ -24,6 +25,18 @@ def getMaskPixels(image, outer_correction_frame, inner_correction_frame):
 
 
 def getCorrectionValues(input_image, Box, smallBox):
+    """
+    Calculate the standard deviations and peak histogram values for the blue, green, and red channels 
+    of the pixels within a specified region of an image.
+    Parameters:
+    input_image (numpy.ndarray): The input image from which to extract pixel values.
+    Box (tuple): The coordinates defining the larger region of interest in the format (x, y, width, height).
+    smallBox (tuple): The coordinates defining the smaller region of interest within the larger region in the format (x, y, width, height).
+    Returns:
+    list: A list containing the standard deviations and peak histogram values for the blue, green, and red channels 
+          in the following order: [sigma_b_s, sigma_g_s, sigma_r_s, peak_b_s, peak_g_s, peak_r_s].
+    """
+
     image = input_image.copy()
     
     pixels = getMaskPixels(image, Box, smallBox)
@@ -40,6 +53,17 @@ def getCorrectionValues(input_image, Box, smallBox):
 
 
 def correctImage(image, ground_thruth, outer_correction_frame, inner_correction_frame):
+    """
+    Corrects the color of an image based on provided ground truth and correction frames.
+    Parameters:
+    image (numpy.ndarray): The input image to be corrected.
+    ground_thruth (list or numpy.ndarray): The ground truth values for color correction.
+    outer_correction_frame (numpy.ndarray): The outer frame used for calculating correction values.
+    inner_correction_frame (numpy.ndarray): The inner frame used for calculating correction values.
+    Returns:
+    numpy.ndarray: The color-corrected image.
+    """
+    
     # Korrekturwerte berechnen
     correction_values = getCorrectionValues(image, outer_correction_frame, inner_correction_frame)
 
@@ -60,6 +84,16 @@ def correctImage(image, ground_thruth, outer_correction_frame, inner_correction_
     return corrected_image
 
 def showHistogram(original_image, corrected_image, outer_correction_frame, inner_correction_frame):
+    """
+    Displays histograms of the color channels for the original and corrected images.
+    Parameters:
+    original_image (numpy.ndarray): The original image.
+    corrected_image (numpy.ndarray): The corrected image.
+    outer_correction_frame (tuple): The outer frame for masking pixels (x, y, width, height).
+    inner_correction_frame (tuple): The inner frame for masking pixels (x, y, width, height).
+    Returns:
+    None
+    """
 
     original_pixels = getMaskPixels(original_image, outer_correction_frame, inner_correction_frame)
     corrected_pixels = getMaskPixels(corrected_image, outer_correction_frame, inner_correction_frame)
@@ -81,7 +115,21 @@ def showHistogram(original_image, corrected_image, outer_correction_frame, inner
 
 
 def color_filter(image):
+    """
+    Filters an image to detect specific colors and their regions.
+    Args:
+        image (numpy.ndarray): The input image in BGR format.
+    Returns:
+        list: A list of dictionaries, each containing information about detected color regions:
+            - bbox (list): Bounding box coordinates [x, y, width, height].
+            - area_focus_point (list): Center point of the bounding box [x_center, y_center].
+            - color (str): Detected color name.
+            - grid_position (None): Placeholder for grid position (currently None).
+            - average_hue (float): Average hue value of the detected region.
+    """
+
     bild = image.copy()
+    height, width = image.shape[:2]
     # Bild in den HSV-Farbraum umwandeln
     hsv_bild = cv2.cvtColor(bild, cv2.COLOR_BGR2HSV)
 
@@ -123,7 +171,7 @@ def color_filter(image):
         filtered_konturen = []
         for kontur in konturen:
             x, y, w, h = cv2.boundingRect(kontur)
-            if (w * h > 3000) & (w * h < 10000) & (w / h > 0.2) & (w / h < 1.2) & ( cv2.contourArea(kontur)/(w * h) > 0.7):
+            if (w * h > (width * height)/11) & (w * h < (width * height)/7) & (w / h > 0.8) & (w / h < 1.2) & (cv2.contourArea(kontur)/(w * h) > 0.7):
                 filtered_konturen.append(kontur)
         
         for kontur in filtered_konturen:
@@ -164,3 +212,46 @@ def color_filter(image):
     #    print(f"Objekt {i}: Farbe={obj['Farbe']}, X={obj['x']}, Y={obj['y']}, "
     #          f"Breite={obj['width']}, Höhe={obj['height']}, Durchschnittlicher Hue={obj['average_hue']:.2f}")
     return ergebnisse
+
+
+def color_detection(image, center_point):
+    """
+    Detects the color of a region in an image centered at a given point.
+    Args:
+        image (numpy.ndarray): The input image in BGR format.
+        center_point (tuple): The (x, y) coordinates of the center point of the region of interest.
+    Returns:
+        str: The detected color as a string. Possible values are "Rot", "Blau", "Gelb", "Grun", "Orange", "Weiss", or "none" if no color is detected.
+    """
+    size_cube = 10  # Pixel
+
+    hsv_bild = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    roi = [center_point[0]-size_cube/2, center_point[1]-size_cube/2, size_cube, size_cube]
+
+    roi_hsv = hsv_bild[int(roi[1]):int(roi[1]+roi[3]), int(roi[0]):int(roi[0]+roi[2])]
+    average_hue = np.mean(roi_hsv[:, :, 0])
+    average_saturation = np.mean(roi_hsv[:, :, 1])
+    average_value = np.mean(roi_hsv[:, :, 2])
+
+    farb_bereiche = {
+        "Rot": [(np.array([0, 90, 70]), np.array([5, 255, 255])),
+                (np.array([160, 90, 70]), np.array([180, 255, 255]))],
+        "Blau": [(np.array([100, 130, 70]), np.array([150, 255, 255]))],
+        "Gelb": [(np.array([20, 20, 100]), np.array([38, 255, 255]))],
+        "Grun": [(np.array([38, 50, 70]), np.array([100, 255, 255]))],
+        "Orange": [(np.array([5, 130, 70]), np.array([20, 255, 255]))],
+        "Weiss": [(np.array([0, 0, 160]), np.array([180, 20, 255]))],
+    }
+
+    color = "none"
+    for farbe, grenzen in farb_bereiche.items():
+        for untere_grenze, obere_grenze in grenzen:
+            if (untere_grenze[0] <= average_hue <= obere_grenze[0] and
+                untere_grenze[1] <= average_saturation <= obere_grenze[1] and
+                untere_grenze[2] <= average_value <= obere_grenze[2]):
+                color = farbe
+                break
+        if color != "none":
+            break
+
+    return color
