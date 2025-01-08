@@ -8,10 +8,9 @@ import grid_sorting as sorting
 import utils
 import time
 
-livecam = False
+livecam = True
 camera = 1
 color_correction = True
-
 sigma_b = 18.84
 sigma_g = 18.92
 sigma_r = 18.23
@@ -52,6 +51,7 @@ def main(image):
         cv2.imshow('Corrected Image', corrected_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+        pass
 
 
 #  valid_element = {
@@ -73,8 +73,8 @@ def main(image):
          print(element)
 
     # Gruppierung und Sortierung
-    dict_color_sorted, x_groups1, y_groups1 = sorting.assign_grid_positions(dict_color, threshold=50)
-    dict_edge_sorted, x_groups2, y_groups2 = sorting.assign_grid_positions(dict_edge, threshold=50)   
+    dict_color_sorted, x_groups1, y_groups1 = sorting.assign_grid_positions(dict_color, threshold=20)
+    dict_edge_sorted, x_groups2, y_groups2 = sorting.assign_grid_positions(dict_edge, threshold=20)   
 
     # Ausgabe der Gruppen
     print("Dict1 Gruppen:")
@@ -86,7 +86,7 @@ def main(image):
     print("Y-Gruppen:", y_groups2)
 
     # Mergen und Interpolation
-    merged_dict = sorting.merge_and_interpolate(dict_color_sorted, x_groups1, y_groups1, dict_edge_sorted, x_groups2, y_groups2, threshold=50)
+    merged_dict = sorting.merge_and_interpolate(dict_color_sorted, x_groups1, y_groups1, dict_edge_sorted, x_groups2, y_groups2, threshold=20)
 
     # Ausgabe der finalen Daten
     print("\nKompensiertes Dictionary:")
@@ -100,4 +100,32 @@ if __name__ == "__main__":
     image_path = os.path.join("Pictures2", "Picture 13.jpg")
     image = cv2.imread(image_path)
     
-    main(image)
+    if livecam:
+        cap = cv2.VideoCapture(camera)
+
+        # Überprüfen, ob die Kamera geöffnet werden konnte
+        if not cap.isOpened():
+            print("Fehler: Kamera konnte nicht geöffnet werden!")
+
+        while True:
+            # Ein Frame von der Kamera lesen
+            ret, frame = cap.read()
+            
+            if not ret:
+                print("Fehler beim Lesen des Kamerabildes!")
+                break
+
+            main(frame)
+            time.sleep(0.3)
+
+            if cv2.waitKey(1) & 0xFF == 27:
+                break
+
+        # Ressourcen freigeben
+        cap.release()
+        cv2.destroyAllWindows()
+    else: 
+        image = cv2.imread(image_path)
+        main(image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows() 
