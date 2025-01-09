@@ -8,7 +8,7 @@ import grid_sorting as sorting
 import utils
 import time
 
-livecam = True
+livecam = False
 camera = 1
 color_correction = True
 sigma_b = 18.84
@@ -29,21 +29,25 @@ def main(image):
             return
 
     outer_grey_frame = ip.detect_outer_gray_frame(image)
+    reduced_outer_grey_frame = ip.reduce_boundingbox(outer_grey_frame, OUTER_GREY_FRAME_FAKTOR)
+    inner_grey_frame = ip.reduce_boundingbox(reduced_outer_grey_frame, INNER_GREY_FRAME_FAKTOR)
+
+
     cropped_image = ip.cut_image(image, outer_grey_frame)
     # Relocate Boundingbox in cropped frame
     cropped_outer_grey_frame = [0, 0, outer_grey_frame[2], outer_grey_frame[3]]
-    reduced_outer_grey_frame = ip.reduce_boundingbox(cropped_outer_grey_frame, OUTER_GREY_FRAME_FAKTOR)
-    inner_grey_frame = ip.reduce_boundingbox(reduced_outer_grey_frame, INNER_GREY_FRAME_FAKTOR)
+    croped_reduced_outer_grey_frame = ip.reduce_boundingbox(cropped_outer_grey_frame, OUTER_GREY_FRAME_FAKTOR)
+    croped_inner_grey_frame = ip.reduce_boundingbox(croped_reduced_outer_grey_frame, INNER_GREY_FRAME_FAKTOR)
 
     # Zeichne die Bounding Boxen (grün)
     debug_cropped_image = cropped_image.copy()
-    cv2.rectangle(debug_cropped_image, (reduced_outer_grey_frame[0],reduced_outer_grey_frame[1]), (reduced_outer_grey_frame[0]+reduced_outer_grey_frame[2],reduced_outer_grey_frame[1]+reduced_outer_grey_frame[3]), (0, 255, 0), 2)
-    cv2.rectangle(debug_cropped_image, (inner_grey_frame[0],inner_grey_frame[1]), (inner_grey_frame[0]+inner_grey_frame[2],inner_grey_frame[1]+inner_grey_frame[3]), (0, 255,0), 2)
+    cv2.rectangle(debug_cropped_image, (croped_reduced_outer_grey_frame[0],croped_reduced_outer_grey_frame[1]), (croped_reduced_outer_grey_frame[0]+croped_reduced_outer_grey_frame[2],croped_reduced_outer_grey_frame[1]+croped_reduced_outer_grey_frame[3]), (0, 255, 0), 2)
+    cv2.rectangle(debug_cropped_image, (croped_inner_grey_frame[0],croped_inner_grey_frame[1]), (croped_inner_grey_frame[0]+croped_inner_grey_frame[2],croped_inner_grey_frame[1]+croped_inner_grey_frame[3]), (0, 255,0), 2)
     cv2.imshow('Cropped Image',debug_cropped_image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-    corrected_image = color.correctImage(cropped_image, color_correction_ground_truth, reduced_outer_grey_frame, inner_grey_frame)
+    corrected_image = color.correctImage(cropped_image, color_correction_ground_truth, croped_reduced_outer_grey_frame, croped_inner_grey_frame)
     if corrected_image is None:
         print("Error: Image correction failed.")
         return
@@ -62,38 +66,49 @@ def main(image):
 #                 "avg_hue": None,
 #             }
 
-    dict_color = color.color_filter(corrected_image)
+    dict_color, color_mask = color.color_filter(corrected_image)
     print("Color Dictionary:")
     for element in dict_color:
          print(element)
 
-    dict_edge = edge.edge_detection(corrected_image)
+    dict_edge, edge_mask = edge.edge_detection(corrected_image)
     print("Edge Dictionary:")
     for element in dict_edge:
          print(element)
 
     # Gruppierung und Sortierung
-    dict_color_sorted, x_groups1, y_groups1 = sorting.assign_grid_positions(dict_color, threshold=20)
-    dict_edge_sorted, x_groups2, y_groups2 = sorting.assign_grid_positions(dict_edge, threshold=20)   
+    dict_color_sorted, x_groups1, y_groups1 = sorting.assign_grid_positions(dict_color)
+    dict_edge_sorted, x_groups2, y_groups2 = sorting.assign_grid_positions(dict_edge)   
 
     # Ausgabe der Gruppen
-    print("Dict1 Gruppen:")
+    print("Dict Color Gruppen:")
     print("X-Gruppen:", x_groups1)
     print("Y-Gruppen:", y_groups1)
 
-    print("\nDict2 Gruppen:")
+    print("\nDict Edge Gruppen:")
     print("X-Gruppen:", x_groups2)
     print("Y-Gruppen:", y_groups2)
 
-    # Mergen und Interpolation
-    merged_dict = sorting.merge_and_interpolate(dict_color_sorted, x_groups1, y_groups1, dict_edge_sorted, x_groups2, y_groups2, threshold=20)
+    # Merge the dictionaries and groups
+    merged_dict, merged_x_group, merged_y_group = sorting.merge_dictionaries(dict_color_sorted, dict_edge_sorted, x_groups1, y_groups1, x_groups2, y_groups2)
+
+    # Interpolate missing entries
+    final_dict = sorting.interpolate_missing_entries(merged_dict, merged_x_group, merged_y_group)
 
     # Ausgabe der finalen Daten
     print("\nKompensiertes Dictionary:")
-    for pos, entry in sorted(merged_dict.items(), key=lambda x: x[1]['grid_position']):
+    for pos, entry in sorted(final_dict.items(), key=lambda x: x[1]['grid_position']):
         print(f"Position {entry['grid_position']}: {entry}")
 
-    utils.draw_grid_positions(image, merged_dict, outer_grey_frame)    
+    # Berechne die Edge- und Color-Masken
+    # edge_mask = edge.create_edge_mask(image, outer_grey_frame)
+    # color_mask = color.create_color_mask(image, outer_grey_frame)
+    # edge_mask = corrected_image.copy()
+    # color_mask = corrected_image.copy()
+
+    # Zeige die Bilder zusammen
+    utils.draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame, reduced_outer_grey_frame, inner_grey_frame, final_dict)
+ 
 
 if __name__ == "__main__":
     

@@ -99,4 +99,4 @@ def edge_detection(image):
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
         
-    return list_dict_edge
+    return list_dict_edge, clean_mask

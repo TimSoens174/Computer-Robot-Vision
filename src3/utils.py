@@ -1,76 +1,79 @@
 import cv2
-def draw_grid_positions(image, merged_dict, outer_grey_frame):
-    # Kopie des Originalbildes für die Bearbeitung
-    debug_image = image.copy()
+import matplotlib.pyplot as plt
 
-    # Zeichne die grid_position als Zahl (nur die Position) an den area_focus_point
-    for pos, entry in merged_dict.items():
-        grid_position = entry['grid_position']
+def draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame, reduced_outer_grey_frame, inner_grey_frame, final_dict):
+    # Stelle sicher, dass alle Bilder die gleiche Größe haben
+    height, width = image.shape[:2]
+    
+    # Erstelle ein neues Bild für die Anzeige
+    fig, axes = plt.subplots(2, 2, figsize=(10, 10), gridspec_kw={'width_ratios': [2, 1]})
+    
+    # Originalbild mit Bounding Box und Beschriftung
+    ax1 = axes[0, 0]
+    
+    
+    # Zeichne alle Bounding Boxen auf das Originalbild (adjusted coordinates)
+    cv2.rectangle(image, (outer_grey_frame[0], outer_grey_frame[1]), (outer_grey_frame[0] + outer_grey_frame[2], outer_grey_frame[1] + outer_grey_frame[3]), (0, 255, 0), 2)
+    cv2.rectangle(image, (reduced_outer_grey_frame[0], reduced_outer_grey_frame[1]), (reduced_outer_grey_frame[0] + reduced_outer_grey_frame[2], reduced_outer_grey_frame[1] + reduced_outer_grey_frame[3]), (255, 0, 0), 2)
+    cv2.rectangle(image, (inner_grey_frame[0], inner_grey_frame[1]), (inner_grey_frame[0] + inner_grey_frame[2], inner_grey_frame[1] + inner_grey_frame[3]), (255, 0, 0), 2)
+    
+    # Zeichne die Positionsnummern und die Legende basierend auf dem final_dict
+    for pos, entry in final_dict.items():
         area_focus_point = entry['area_focus_point']
-        color = entry['color']
-        detected = entry['detected']
-
-        # Korrektur der Koordinaten, um den Versatz (outer_grey_frame) zu berücksichtigen
-        corrected_x = area_focus_point[0] + outer_grey_frame[0]
-        corrected_y = area_focus_point[1] + outer_grey_frame[1]
-
-        # Text mit der Positionsnummer anstatt der kompletten Info
+        grid_position = entry['grid_position']
+        
+        # Berechne den Textort und zeichne die Positionsnummer
         text = f"{grid_position}"
         font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 2
-        font_color = (0, 0, 0)  # Rot
-        thickness = 3
+        font_scale = 1.5
+        font_color = (0, 0, 0)  # Schwarz
+        thickness = 2
 
-        # Position für den Text
+        # Text Position anpassen, um die Position in der Mitte des Focus-Punkts zu setzen
         text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
-        text_x = corrected_x - text_size[0] // 2
-        text_y = corrected_y + text_size[1] // 2
+        text_x = int(area_focus_point[0] - text_size[0] // 2)  # Stelle sicher, dass text_x eine ganze Zahl ist
+        text_y = int(area_focus_point[1] + text_size[1] // 2)  # Stelle sicher, dass text_y eine ganze Zahl ist
 
-        # Text auf das Bild zeichnen (nur die Position)
-        cv2.putText(debug_image, text, (text_x, text_y), font, font_scale, font_color, thickness)
+        # Text auf das Bild zeichnen
+        cv2.putText(image, text, (text_x, text_y), font, font_scale, font_color, thickness)
 
-    # Erstelle eine Legende unten rechts
-    legend_x = image.shape[1] - 400  # Startpunkt der Legende
-    legend_y = image.shape[0] - 400  # Startpunkt der Legende
+    # Zeige die Legende
+    legend_x = int(image.shape[1] * 0.8)  # Startpunkt der Legende
+    legend_y = image.shape[0] - 50  # Startpunkt der Legende
     legend_font = cv2.FONT_HERSHEY_SIMPLEX
     legend_font_scale = 0.8
-    legend_font_color = (0, 0, 0)  # Rot
+    legend_font_color = (0, 0, 0)  # Schwarz
     legend_thickness = 2
-    line_height = 40  # Abstand zwischen den Zeilen der Legende
-
-    # Zeige die Legende für jede Position im Grid
-    for i in range(1, 10):
-        # Suche den entsprechenden Eintrag
-        entry = next((item for item in merged_dict.values() if item['grid_position'] == i), None)
-        if entry:
-            # Hier geben wir die vollständige Legende aus (Position, Farbe, Detected)
-            legend_text = f"Pos {i}: {entry['color']}, {entry['detected']}"
-            # Text auf das Bild zeichnen
-            cv2.putText(debug_image, legend_text, (legend_x, legend_y), legend_font, legend_font_scale, legend_font_color, legend_thickness)
-            legend_y += line_height  # Erhöhe die Y-Position für die nächste Zeile
-
-    # Zeige das Bild an
-    cv2.imshow("Debug Image with Grid Info", debug_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-# # Beispielaufruf der Funktion
-# if __name__ == "__main__":
-#     image_path = os.path.join("Pictures2", "Picture 15.jpg")
-#     image = cv2.imread(image_path)
+    line_height = 30  # Abstand zwischen den Zeilen der Legende
     
-#     # Angenommen, merged_dict wurde vorher schon erstellt
-#     merged_dict = {
-#         1: {'grid_position': 1, 'area_focus_point': (121, 143), 'color': 'Gelb', 'detected': 'both'},
-#         2: {'grid_position': 2, 'area_focus_point': (242, 146), 'color': 'Gelb', 'detected': 'both'},
-#         3: {'grid_position': 3, 'area_focus_point': (365, 148), 'color': 'Grün', 'detected': 'both'},
-#         4: {'grid_position': 4, 'area_focus_point': (119, 264), 'color': None, 'detected': 'edge'},
-#         5: {'grid_position': 5, 'area_focus_point': (240, 264), 'color': 'Gelb', 'detected': 'both'},
-#         6: {'grid_position': 6, 'area_focus_point': (362, 268), 'color': 'Gelb', 'detected': 'both'},
-#         7: {'grid_position': 7, 'area_focus_point': (126, 381), 'color': 'Rot', 'detected': 'both'},
-#         8: {'grid_position': 8, 'area_focus_point': (245, 383), 'color': 'Rot', 'detected': 'both'},
-#         9: {'grid_position': 9, 'area_focus_point': (361, 381), 'color': 'Gelb', 'detected': 'both'}
-#     }
-#     outer_grey_frame = [100, 100, 500, 500]  # Beispielwert für den Versatz
+    # Generiere die Legende
+    for pos, entry in final_dict.items():
+        legend_text = f"Pos {entry['grid_position']}: {entry['color']}, {entry['detected']}"
+        cv2.putText(image, legend_text, (legend_x, legend_y), legend_font, legend_font_scale, legend_font_color, legend_thickness)
+        legend_y += line_height
 
-#     draw_grid_positions(image, merged_dict, outer_grey_frame)
+    ax1.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))  # BGR zu RGB umwandeln
+    ax1.set_title("Original Image with Bounding Boxes")
+    ax1.axis("off")
+
+    # Korrigiertes Bild
+    ax2 = axes[0, 1]
+    ax2.imshow(cv2.cvtColor(corrected_image, cv2.COLOR_BGR2RGB))
+    ax2.set_title("Corrected Image")
+    ax2.axis("off")
+    
+    # Edge-Maske
+    ax3 = axes[1, 0]
+    ax3.imshow(cv2.cvtColor(edge_mask, cv2.COLOR_BGR2RGB))
+    ax3.set_title("Edge Mask")
+    ax3.axis("off")
+    
+    # Farbige Maske
+    ax4 = axes[1, 1]
+    ax4.imshow(cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))
+    ax4.set_title("Colored Mask")
+    ax4.axis("off")
+    
+    # Zeige das Bild
+    plt.tight_layout()
+    plt.show()

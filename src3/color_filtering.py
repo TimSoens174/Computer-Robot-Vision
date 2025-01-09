@@ -150,6 +150,9 @@ def color_filter(image):
     # Ergebnisse speichern
     ergebnisse = []
 
+    # Leere kombinierte Maske erstellen
+    combined_mask = np.zeros((height, width), dtype=np.uint8)
+
     # Über alle Farben iterieren
     i = 0
     for farbe, grenzen in farb_bereiche.items():
@@ -167,13 +170,16 @@ def color_filter(image):
         #     cv2.waitKey(0)
         #     cv2.destroyAllWindows()
 
+        # Kombiniere diese Farbe mit der Gesamtmaske
+        combined_mask |= maske
+
         # Konturen der Objekte finden
         konturen, hierarchie = cv2.findContours(maske, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         
         filtered_konturen = []
         for kontur in konturen:
             x, y, w, h = cv2.boundingRect(kontur)
-            if (w * h > (width * height)/11) & (w * h < (width * height)/7) & (w / h > 0.8) & (w / h < 1.2) & (cv2.contourArea(kontur)/(w * h) > 0.7):
+            if (w * h > (width * height)/36) & (w * h < (width * height)/9) & (w / h > 0.8) & (w / h < 1.2) & (cv2.contourArea(kontur)/(w * h) > 0.7):
                 filtered_konturen.append(kontur)
         
         for kontur in filtered_konturen:
@@ -213,7 +219,7 @@ def color_filter(image):
     #for i, obj in enumerate(ergebnisse, 1):
     #    print(f"Objekt {i}: Farbe={obj['Farbe']}, X={obj['x']}, Y={obj['y']}, "
     #          f"Breite={obj['width']}, Höhe={obj['height']}, Durchschnittlicher Hue={obj['average_hue']:.2f}")
-    return ergebnisse
+    return ergebnisse, combined_mask
 
 
 def color_detection(image, center_point):
