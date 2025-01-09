@@ -9,7 +9,7 @@ import utils
 import time
 
 livecam = False
-camera = 1
+camera = 0
 color_correction = True
 sigma_b = 18.84
 sigma_g = 18.92
@@ -40,21 +40,21 @@ def main(image):
     croped_inner_grey_frame = ip.reduce_boundingbox(croped_reduced_outer_grey_frame, INNER_GREY_FRAME_FAKTOR)
 
     # Zeichne die Bounding Boxen (grün)
-    debug_cropped_image = cropped_image.copy()
-    cv2.rectangle(debug_cropped_image, (croped_reduced_outer_grey_frame[0],croped_reduced_outer_grey_frame[1]), (croped_reduced_outer_grey_frame[0]+croped_reduced_outer_grey_frame[2],croped_reduced_outer_grey_frame[1]+croped_reduced_outer_grey_frame[3]), (0, 255, 0), 2)
-    cv2.rectangle(debug_cropped_image, (croped_inner_grey_frame[0],croped_inner_grey_frame[1]), (croped_inner_grey_frame[0]+croped_inner_grey_frame[2],croped_inner_grey_frame[1]+croped_inner_grey_frame[3]), (0, 255,0), 2)
-    cv2.imshow('Cropped Image',debug_cropped_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # debug_cropped_image = cropped_image.copy()
+    # cv2.rectangle(debug_cropped_image, (croped_reduced_outer_grey_frame[0],croped_reduced_outer_grey_frame[1]), (croped_reduced_outer_grey_frame[0]+croped_reduced_outer_grey_frame[2],croped_reduced_outer_grey_frame[1]+croped_reduced_outer_grey_frame[3]), (0, 255, 0), 2)
+    # cv2.rectangle(debug_cropped_image, (croped_inner_grey_frame[0],croped_inner_grey_frame[1]), (croped_inner_grey_frame[0]+croped_inner_grey_frame[2],croped_inner_grey_frame[1]+croped_inner_grey_frame[3]), (0, 255,0), 2)
+    # cv2.imshow('Cropped Image',debug_cropped_image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
     corrected_image = color.correctImage(cropped_image, color_correction_ground_truth, croped_reduced_outer_grey_frame, croped_inner_grey_frame)
     if corrected_image is None:
         print("Error: Image correction failed.")
         return
     else:
-        cv2.imshow('Corrected Image', corrected_image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # cv2.imshow('Corrected Image', corrected_image)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
         pass
 
 
@@ -93,7 +93,11 @@ def main(image):
     merged_dict, merged_x_group, merged_y_group = sorting.merge_dictionaries(dict_color_sorted, dict_edge_sorted, x_groups1, y_groups1, x_groups2, y_groups2)
 
     # Interpolate missing entries
-    final_dict = sorting.interpolate_missing_entries(merged_dict, merged_x_group, merged_y_group)
+    interpolated_dict = sorting.interpolate_missing_entries(merged_dict, merged_x_group, merged_y_group)
+
+    # Farberkennung für Noneeinträge
+
+    final_dict = color.update_color_for_none_entries(interpolated_dict, corrected_image)
 
     # Ausgabe der finalen Daten
     print("\nKompensiertes Dictionary:")

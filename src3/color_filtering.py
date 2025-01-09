@@ -170,8 +170,7 @@ def color_filter(image):
         #     cv2.waitKey(0)
         #     cv2.destroyAllWindows()
 
-        # Kombiniere diese Farbe mit der Gesamtmaske
-        combined_mask |= maske
+        
 
         # Konturen der Objekte finden
         konturen, hierarchie = cv2.findContours(maske, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -179,7 +178,7 @@ def color_filter(image):
         filtered_konturen = []
         for kontur in konturen:
             x, y, w, h = cv2.boundingRect(kontur)
-            if (w * h > (width * height)/36) & (w * h < (width * height)/9) & (w / h > 0.8) & (w / h < 1.2) & (cv2.contourArea(kontur)/(w * h) > 0.7):
+            if (w * h > (width * height)/30) & (w * h < (width * height)/9) & (w / h > 0.8) & (w / h < 1.2) & (cv2.contourArea(kontur)/(w * h) > 0.7):
                 filtered_konturen.append(kontur)
         
         for kontur in filtered_konturen:
@@ -187,6 +186,9 @@ def color_filter(image):
             # Bereich extrahieren
             roi_maske = maske[y:y+h, x:x+w]
             roi_hsv = hsv_bild[y:y+h, x:x+w]
+
+            # Kombiniere diese Farbe mit der Gesamtmaske
+            combined_mask |= maske
 
             # Durchschnittlichen Hue-Wert berechnen
             hue_werte = roi_hsv[:, :, 0][roi_maske > 0]
@@ -263,3 +265,23 @@ def color_detection(image, center_point):
             break
 
     return color
+
+def update_color_for_none_entries(dict, image):
+    """
+    Aktualisiert den 'color'-Wert für alle Einträge in dict, bei denen 'color' None ist.
+    
+    Args:
+        dict (dict): Das Dictionary mit den Einträgen.
+        image (numpy.ndarray): Das Bild, das für die Farberkennung verwendet wird.
+    
+    Returns:
+        dict: Aktualisiertes Dictionary.
+    """
+    for pos, entry in dict.items():
+        if entry['color'] is None:
+            # Wende color_detection an und aktualisiere 'color'
+            center_point = entry['area_focus_point']
+            detected_color = color_detection(image, center_point)
+            entry['color'] = detected_color
+
+    return dict

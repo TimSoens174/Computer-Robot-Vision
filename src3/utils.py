@@ -31,23 +31,23 @@ def draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame,
 
         # Text Position anpassen, um die Position in der Mitte des Focus-Punkts zu setzen
         text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
-        text_x = int(area_focus_point[0] - text_size[0] // 2)  # Stelle sicher, dass text_x eine ganze Zahl ist
-        text_y = int(area_focus_point[1] + text_size[1] // 2)  # Stelle sicher, dass text_y eine ganze Zahl ist
+        text_x = int(area_focus_point[0]+outer_grey_frame[0] - text_size[0] // 2)  # Stelle sicher, dass text_x eine ganze Zahl ist
+        text_y = int(area_focus_point[1]+outer_grey_frame[1] + text_size[1] // 2)  # Stelle sicher, dass text_y eine ganze Zahl ist
 
         # Text auf das Bild zeichnen
         cv2.putText(image, text, (text_x, text_y), font, font_scale, font_color, thickness)
 
     # Zeige die Legende
-    legend_x = int(image.shape[1] * 0.8)  # Startpunkt der Legende
-    legend_y = image.shape[0] - 50  # Startpunkt der Legende
+    legend_x = int(image.shape[1] * 0.6)  # Startpunkt der Legende
+    legend_y = int(image.shape[0] * 0.6)  # Startpunkt der Legende
     legend_font = cv2.FONT_HERSHEY_SIMPLEX
-    legend_font_scale = 0.8
+    legend_font_scale = image.shape[0] * 0.0015
     legend_font_color = (0, 0, 0)  # Schwarz
     legend_thickness = 2
-    line_height = 30  # Abstand zwischen den Zeilen der Legende
+    line_height = int(image.shape[0] * 0.05)  # Abstand zwischen den Zeilen der Legende
     
     # Generiere die Legende
-    for pos, entry in final_dict.items():
+    for pos, entry in sorted(final_dict.items(), key=lambda x: x[1]['grid_position']):
         legend_text = f"Pos {entry['grid_position']}: {entry['color']}, {entry['detected']}"
         cv2.putText(image, legend_text, (legend_x, legend_y), legend_font, legend_font_scale, legend_font_color, legend_thickness)
         legend_y += line_height
