@@ -100,10 +100,12 @@ def main(image):
     # Interpolate missing entries
     interpolated_dict = sorting.interpolate_missing_entries(merged_dict, merged_x_group, merged_y_group)
 
-
-
     # Farberkennung für Noneeinträge
     final_dict = color.update_color_for_none_entries(interpolated_dict, corrected_image)
+
+    if final_dict is None:
+        print("Error: Updating color for None entries failed.")
+        return
 
     # Entferne Einträge mit None-Werten für grid_position
     final_dict = {k: v for k, v in final_dict.items() if v['grid_position'] is not None}
@@ -122,7 +124,7 @@ def main(image):
 
 if __name__ == "__main__":
     
-    image_path = os.path.join("Pictures2", "Picture 15.jpg") # 5,11
+    image_path = os.path.join("Pictures2", "Picture 7.jpg") # 5,11
     image = cv2.imread(image_path)
     
     if livecam:

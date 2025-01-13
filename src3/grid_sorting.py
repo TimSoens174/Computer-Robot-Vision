@@ -90,6 +90,8 @@ def merge_dictionaries(dict_color_sorted, dict_edge_sorted, x_groups1, y_groups1
 
     if dict_color_sorted is None or any(entry['grid_position'] is None for entry in dict_color_sorted):
         merged_dict = {entry['grid_position']: entry for entry in dict_edge_sorted}
+        if dict_edge_sorted is None:
+            return None, None, None
         for entry in merged_dict.values():
             entry['detected'] = 'edge'
         return merged_dict, x_groups2, y_groups2
@@ -114,8 +116,8 @@ def merge_dictionaries(dict_color_sorted, dict_edge_sorted, x_groups1, y_groups1
                 for i in range(4)
             ]
             merged_entry['area_focus_point'] = [
-                (faktor_color_dict * merged_entry['area_focus_point'][i] + faktor_edge_dict * entry['area_focus_point'][i]) /
-                (faktor_color_dict + faktor_edge_dict)
+                int((faktor_color_dict * merged_entry['area_focus_point'][i] + faktor_edge_dict * entry['area_focus_point'][i]) /
+                (faktor_color_dict + faktor_edge_dict))
                 for i in range(2)
             ]
             # Sichern der Farb- und Hue-Werte (nur wenn sie vorhanden sind)
@@ -146,8 +148,8 @@ def interpolate_missing_entries(merged_dict, merged_group_x, merged_group_y):
             row, col = divmod(pos - 1, 3)
             interpolated_entry = {
                 "bbox": None,
-                "area_focus_point": [merged_group_x[col] if col < len(merged_group_x) else x_mean,
-                                     merged_group_y[row] if row < len(merged_group_y) else y_mean],
+                "area_focus_point": (int(merged_group_x[col] if col < len(merged_group_x) else x_mean),
+                                     int(merged_group_y[row] if row < len(merged_group_y) else y_mean)),
                 "color": None,
                 "grid_position": pos,
                 "detected": "interpolated",

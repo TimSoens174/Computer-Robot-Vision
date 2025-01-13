@@ -136,13 +136,13 @@ def color_filter(image):
 
     # Farbbereiche definieren
     farb_bereiche = {
-        "Rot": [(np.array([0, 140,  140]), np.array([5, 255, 255])),
-                (np.array([170, 140, 140]), np.array([180, 255, 255]))],
-        "Blau": [(np.array([86, 80, 70]), np.array([140, 255, 255]))],
-        "Gelb": [(np.array([20, 20, 100]), np.array([38, 255, 255]))],
-        "Orange": [(np.array([5, 80, 70]), np.array([20, 255, 255]))],
-        "Grun": [(np.array([40, 50, 70]), np.array([85, 255, 255]))],
-        "Weiss": [(np.array([0, 0, 160]), np.array([180, 35, 255]))],
+       "Rot": [(np.array([0, 90, 70]), np.array([5, 255, 255])),
+                (np.array([160, 90, 70]), np.array([180, 255, 255]))],
+        "Blau": [(np.array([95, 130, 70]), np.array([150, 255, 255]))],
+        "Gelb": [(np.array([20, 20, 100]), np.array([45, 255, 255]))],
+        "Grun": [(np.array([45, 50, 70]), np.array([95, 255, 255]))],
+        "Orange": [(np.array([5, 100, 70]), np.array([20, 255, 255]))],
+        "Weiss": [(np.array([0, 0, 160]), np.array([180, 50, 255]))],
     }
 
     # Ergebnisbild kopieren
@@ -251,11 +251,11 @@ def color_detection(image, center_point):
     farb_bereiche = {
         "Rot": [(np.array([0, 90, 70]), np.array([5, 255, 255])),
                 (np.array([160, 90, 70]), np.array([180, 255, 255]))],
-        "Blau": [(np.array([100, 130, 70]), np.array([150, 255, 255]))],
-        "Gelb": [(np.array([20, 20, 100]), np.array([38, 255, 255]))],
-        "Grun": [(np.array([38, 50, 70]), np.array([100, 255, 255]))],
+        "Blau": [(np.array([95, 130, 70]), np.array([150, 255, 255]))],
+        "Gelb": [(np.array([20, 20, 100]), np.array([45, 255, 255]))],
+        "Grun": [(np.array([45, 50, 70]), np.array([95, 255, 255]))],
         "Orange": [(np.array([5, 100, 70]), np.array([20, 255, 255]))],
-        "Weiss": [(np.array([0, 0, 160]), np.array([180, 20, 255]))],
+        "Weiss": [(np.array([0, 0, 160]), np.array([180, 50, 255]))],
     }
 
     color = None

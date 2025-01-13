@@ -69,9 +69,9 @@ def edge_detection(image):
             if moments["m00"] != 0:
                 cx = int(moments["m10"] / moments["m00"])
                 cy = int(moments["m01"] / moments["m00"])
-                area_focus_point = (cx, cy)
+                area_focus_point = [cx, cy]
             else:
-                area_focus_point = (None, None)
+                area_focus_point = [None, None]
 
             # Kontur speichern
             valid_rectangles.append(approx)

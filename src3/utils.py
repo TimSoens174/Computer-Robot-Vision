@@ -1,15 +1,15 @@
 import cv2
 import matplotlib.pyplot as plt
-
+import pandas as pd
 
 def draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame, reduced_outer_grey_frame, inner_grey_frame, final_dict):
     # Erstelle ein neues Bild für die Anzeige
     fig = plt.figure(figsize=(12, 12))
     grid = fig.add_gridspec(3, 2, width_ratios=[1, 2], height_ratios=[1, 1, 1])
     
-    # Spalte 2: Bearbeitetes Originalbild mit Bounding Boxes und Legenden (nimmt gesamte Spalte ein)
-    ax1 = fig.add_subplot(grid[:, 1])
-    # Zeichne die Bounding Boxen und Legenden
+    # Spalte 2, obere 2/3: Bearbeitetes Originalbild
+    ax1 = fig.add_subplot(grid[0:2, 1])
+    # Zeichne die Bounding Boxen
     cv2.rectangle(image, (outer_grey_frame[0], outer_grey_frame[1]), 
                   (outer_grey_frame[0] + outer_grey_frame[2], outer_grey_frame[1] + outer_grey_frame[3]), 
                   (0, 255, 0), 2)
@@ -20,7 +20,7 @@ def draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame,
                   (inner_grey_frame[0] + inner_grey_frame[2], inner_grey_frame[1] + inner_grey_frame[3]), 
                   (255, 0, 0), 2)
 
-    # Positionsnummern und Legenden zeichnen
+    # Zeichne die Positionsnummern
     for pos, entry in final_dict.items():
         area_focus_point = entry['area_focus_point']
         grid_position = entry['grid_position']
@@ -34,43 +34,53 @@ def draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame,
         text_y = int(area_focus_point[1] + outer_grey_frame[1] + text_size[1] // 2)
         cv2.putText(image, text, (text_x, text_y), font, font_scale, font_color, thickness)
 
-    # Legende zeichnen
-    legend_x = int(image.shape[1] * 0.7)
-    legend_y = int(image.shape[0] * 0.5)
-    legend_font = cv2.FONT_HERSHEY_SIMPLEX
-    legend_font_scale = image.shape[0] * 0.0015
-    legend_font_color = (0, 0, 0)
-    legend_thickness = 2
-    line_height = int(image.shape[0] * 0.05)
-    for pos, entry in sorted(final_dict.items(), key=lambda x: x[1]['grid_position']):
-        legend_text = f"{entry['grid_position']}: {entry['color']}, {entry['detected']}"
-        cv2.putText(image, legend_text, (legend_x, legend_y), legend_font, legend_font_scale, legend_font_color, legend_thickness)
-        legend_y += line_height
-
     ax1.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-    ax1.set_title("Original Image with Bounding Boxes")
+    ax1.set_title("Processed Image")
     ax1.axis("off")
 
-    # Spalte 1, Reihe 1: Korrigiertes Bild
-    ax2 = fig.add_subplot(grid[0, 0])
-    ax2.imshow(cv2.cvtColor(corrected_image, cv2.COLOR_BGR2RGB))
-    ax2.set_title("Corrected Image")
-    ax2.axis("off")
+    # Spalte 2, unteres 1/3: Tabelle mit der Legende
+    ax2 = fig.add_subplot(grid[2, 1])
+    legend_data = {
+        "Position": [],
+        "Color": [],
+        "Focus Point": [],
+        "Detected": []
+    }
+    for pos, entry in final_dict.items():
+        legend_data["Position"].append(pos)
+        legend_data["Color"].append(entry.get('color', 'None') if entry.get('color') is not None else 'None')
+        legend_data["Focus Point"].append(entry['area_focus_point'])
+        legend_data["Detected"].append(entry['detected'])
 
-    # Spalte 1, Reihe 2: Edge-Maske
-    ax3 = fig.add_subplot(grid[1, 0])
-    ax3.imshow(cv2.cvtColor(edge_mask, cv2.COLOR_BGR2RGB))
-    ax3.set_title("Edge Mask")
+    df = pd.DataFrame(legend_data)
+    df = df.sort_values(by="Position")  # Sortiere die Tabelle nach der Position
+    ax2.axis("off")
+    table = ax2.table(cellText=df.values, colLabels=df.columns, cellLoc='center', loc='center')
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1.2, 1.2)
+
+    # Begrenze die Breite der Tabelle
+    for key, cell in table.get_celld().items():
+        cell.set_width(0.2)  # Setze die Breite jeder Zelle auf 0.2
+
+    # Spalte 1, Reihe 1: Korrigiertes Bild
+    ax3 = fig.add_subplot(grid[0, 0])
+    ax3.imshow(cv2.cvtColor(corrected_image, cv2.COLOR_BGR2RGB))
+    ax3.set_title("Corrected Image")
     ax3.axis("off")
 
-    # Spalte 1, Reihe 3: Farbige Maske
-    ax4 = fig.add_subplot(grid[2, 0])
-    ax4.imshow(cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))
-    ax4.set_title("Colored Mask")
+    # Spalte 1, Reihe 2: Edge-Maske
+    ax4 = fig.add_subplot(grid[1, 0])
+    ax4.imshow(cv2.cvtColor(edge_mask, cv2.COLOR_BGR2RGB))
+    ax4.set_title("Edge Mask")
     ax4.axis("off")
 
-    # Add the keypress event
-    #fig.canvas.mpl_connect('key_press_event', close_plot)
+    # Spalte 1, Reihe 3: Farbige Maske
+    ax5 = fig.add_subplot(grid[2, 0])
+    ax5.imshow(cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))
+    ax5.set_title("Colored Mask")
+    ax5.axis("off")
 
     # Zeige das Layout
     plt.tight_layout()
