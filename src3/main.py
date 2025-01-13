@@ -101,22 +101,18 @@ def main(image):
 
     # Ausgabe der finalen Daten
     print("\nKompensiertes Dictionary:")
-    for pos, entry in sorted(final_dict.items(), key=lambda x: x[1]['grid_position']):
-        print(f"Position {entry['grid_position']}: {entry}")
+    if final_dict is not None:
+        for pos, entry in sorted(final_dict.items(), key=lambda x: x[1]['grid_position']):
+            print(f"Position {entry['grid_position']}: {entry}")
 
-    # Berechne die Edge- und Color-Masken
-    # edge_mask = edge.create_edge_mask(image, outer_grey_frame)
-    # color_mask = color.create_color_mask(image, outer_grey_frame)
-    # edge_mask = corrected_image.copy()
-    # color_mask = corrected_image.copy()
-
-    # Zeige die Bilder zusammen
-    utils.draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame, reduced_outer_grey_frame, inner_grey_frame, final_dict)
- 
+        # Zeige die Bilder zusammen
+        
+        utils.draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame, reduced_outer_grey_frame, inner_grey_frame, final_dict)
+    
 
 if __name__ == "__main__":
     
-    image_path = os.path.join("Pictures2", "Picture 13.jpg")
+    image_path = os.path.join("Pictures2", "Picture 20.jpg")
     image = cv2.imread(image_path)
     
     if livecam:

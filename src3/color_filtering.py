@@ -277,6 +277,9 @@ def update_color_for_none_entries(dict, image):
     Returns:
         dict: Aktualisiertes Dictionary.
     """
+    if dict is None:
+        return None
+    
     for pos, entry in dict.items():
         if entry['color'] is None:
             # Wende color_detection an und aktualisiere 'color'

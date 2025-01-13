@@ -147,7 +147,7 @@ def interpolate_missing_entries(merged_dict, merged_group_x, merged_group_y):
                 "bbox": None,
                 "area_focus_point": [merged_group_x[col] if col < len(merged_group_x) else x_mean,
                                      merged_group_y[row] if row < len(merged_group_y) else y_mean],
-                "color": 'Unknown',
+                "color": 'None',
                 "grid_position": pos,
                 "detected": "interpolated",
                 "avg_hue": None
