@@ -1,9 +1,7 @@
 import numpy as np
 
-def group_coordinates(coords, threshold=50, required_groups=3):
+def group_coordinates(coords, threshold, required_groups=3):
     """Gruppiert Koordinaten entlang einer Achse, erzwingt eine Mindestanzahl von Gruppen."""
-    if len(coords) < required_groups:
-        return None
 
     coords = sorted(coords)
     groups = []
@@ -16,6 +14,9 @@ def group_coordinates(coords, threshold=50, required_groups=3):
             groups.append(current_group)
             current_group = [coords[i]]
     groups.append(current_group)
+    
+    if len(groups) != required_groups:
+        return None
 
     group_means = [np.mean(group) for group in groups]
     return sorted(group_means)
@@ -46,17 +47,17 @@ def assign_grid_positions(entries):
     y_groups = group_coordinates(y_coords, threshold, required_groups=3)
 
     if x_groups is None or y_groups is None:
-        return None, None, None
+        return entries, None, None
+    else:
+        x_groups.sort()
+        y_groups.sort()
 
-    x_groups.sort()
-    y_groups.sort()
-
-    for entry in entries:
-        x, y = entry['area_focus_point']
-        col = np.argmin([abs(x - group) for group in x_groups])
-        row = np.argmin([abs(y - group) for group in y_groups])
-        grid_position = row * 3 + col + 1
-        entry['grid_position'] = grid_position
+        for entry in entries:
+            x, y = entry['area_focus_point']
+            col = np.argmin([abs(x - group) for group in x_groups])
+            row = np.argmin([abs(y - group) for group in y_groups])
+            grid_position = row * 3 + col + 1
+            entry['grid_position'] = grid_position
 
     return entries, x_groups, y_groups
 
@@ -87,7 +88,7 @@ def merge_dictionaries(dict_color_sorted, dict_edge_sorted, x_groups1, y_groups1
     if dict_color_sorted is None and dict_edge_sorted is None:
         return None, None, None
 
-    if dict_color_sorted is None:
+    if dict_color_sorted is None or any(entry['grid_position'] is None for entry in dict_color_sorted):
         merged_dict = {entry['grid_position']: entry for entry in dict_edge_sorted}
         for entry in merged_dict.values():
             entry['detected'] = 'edge'
@@ -147,7 +148,7 @@ def interpolate_missing_entries(merged_dict, merged_group_x, merged_group_y):
                 "bbox": None,
                 "area_focus_point": [merged_group_x[col] if col < len(merged_group_x) else x_mean,
                                      merged_group_y[row] if row < len(merged_group_y) else y_mean],
-                "color": 'None',
+                "color": None,
                 "grid_position": pos,
                 "detected": "interpolated",
                 "avg_hue": None

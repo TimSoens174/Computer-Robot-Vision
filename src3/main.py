@@ -8,15 +8,16 @@ import grid_sorting as sorting
 import utils
 import time
 
-livecam = False
+livecam = True
 camera = 0
+b = 20
 color_correction = True
 sigma_b = 18.84
 sigma_g = 18.92
 sigma_r = 18.23
-max_b = 173
-max_g = 155
-max_r = 145
+max_b = 173-b
+max_g = 155-b
+max_r = 145-b
 INNER_GREY_FRAME_FAKTOR = 0.9
 OUTER_GREY_FRAME_FAKTOR = 0.95
 
@@ -78,16 +79,20 @@ def main(image):
 
     # Gruppierung und Sortierung
     dict_color_sorted, x_groups1, y_groups1 = sorting.assign_grid_positions(dict_color)
-    dict_edge_sorted, x_groups2, y_groups2 = sorting.assign_grid_positions(dict_edge)   
+    if x_groups1 is None or y_groups1 is None:
+        print("Error: No color groups found.")
+    else:
+        print("Dict Color Gruppen:")
+        print("X-Gruppen:", x_groups1)
+        print("Y-Gruppen:", y_groups1)
 
-    # Ausgabe der Gruppen
-    print("Dict Color Gruppen:")
-    print("X-Gruppen:", x_groups1)
-    print("Y-Gruppen:", y_groups1)
-
-    print("\nDict Edge Gruppen:")
-    print("X-Gruppen:", x_groups2)
-    print("Y-Gruppen:", y_groups2)
+    dict_edge_sorted, x_groups2, y_groups2 = sorting.assign_grid_positions(dict_edge)
+    if x_groups2 is None or y_groups2 is None:
+        print("Error: No edge groups found.")
+    else:
+        print("\nDict Edge Gruppen:")
+        print("X-Gruppen:", x_groups2)
+        print("Y-Gruppen:", y_groups2)
 
     # Merge the dictionaries and groups
     merged_dict, merged_x_group, merged_y_group = sorting.merge_dictionaries(dict_color_sorted, dict_edge_sorted, x_groups1, y_groups1, x_groups2, y_groups2)
@@ -95,24 +100,29 @@ def main(image):
     # Interpolate missing entries
     interpolated_dict = sorting.interpolate_missing_entries(merged_dict, merged_x_group, merged_y_group)
 
-    # Farberkennung für Noneeinträge
 
+
+    # Farberkennung für Noneeinträge
     final_dict = color.update_color_for_none_entries(interpolated_dict, corrected_image)
 
-    # Ausgabe der finalen Daten
-    print("\nKompensiertes Dictionary:")
-    if final_dict is not None:
-        for pos, entry in sorted(final_dict.items(), key=lambda x: x[1]['grid_position']):
-            print(f"Position {entry['grid_position']}: {entry}")
+    # Entferne Einträge mit None-Werten für grid_position
+    final_dict = {k: v for k, v in final_dict.items() if v['grid_position'] is not None}
 
-        # Zeige die Bilder zusammen
-        
-        utils.draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame, reduced_outer_grey_frame, inner_grey_frame, final_dict)
+    # Sortiere das Dictionary basierend auf grid_position
+    sorted_final_dict = sorted(final_dict.items(), key=lambda x: x[1]['grid_position'])
+
+    # Ausgabe der sortierten Einträge
+    print("\nKompensiertes Dictionary:")
+    for pos, entry in sorted_final_dict:
+        print(f"Position: {pos}, Entry: {entry}")
+
+    # Zeige die Bilder zusammen  
+    utils.draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame, reduced_outer_grey_frame, inner_grey_frame, final_dict)
     
 
 if __name__ == "__main__":
     
-    image_path = os.path.join("Pictures2", "Picture 20.jpg")
+    image_path = os.path.join("Pictures2", "Picture 15.jpg") # 5,11
     image = cv2.imread(image_path)
     
     if livecam:

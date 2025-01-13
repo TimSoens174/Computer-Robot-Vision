@@ -189,8 +189,12 @@ def color_filter(image):
             roi_maske = maske[y:y+h, x:x+w]
             roi_hsv = hsv_bild[y:y+h, x:x+w]
 
+
+            # Zeichne die Kontur in weiß auf das schwarze Bild
+            image_roi_maske = np.zeros((height, width), dtype=np.uint8)
+            cv2.drawContours(image_roi_maske, [kontur], -1, (255), thickness=cv2.FILLED)
             # Kombiniere diese Farbe mit der Gesamtmaske
-            combined_mask |= maske
+            combined_mask |= image_roi_maske
 
             # Durchschnittlichen Hue-Wert berechnen
             hue_werte = roi_hsv[:, :, 0][roi_maske > 0]

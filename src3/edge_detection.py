@@ -2,13 +2,15 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 def edge_detection(image):
+    height, width = image.shape[:2]
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Step 1: Threshold for Black Regions
     # Black pixels will have low intensity in grayscale
-    _, black_mask = cv2.threshold(gray, 30, 255, cv2.THRESH_BINARY_INV)
+    _, black_mask = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV)
 
     # Display the Black Mask
     # plt.figure(figsize=(6, 6))
@@ -61,7 +63,7 @@ def edge_detection(image):
 
         # Fläche berechnen, um kleine oder große Regionen zu filtern
         area = cv2.contourArea(approx)
-        if 500 < area < 12000:  # Grenzwerte anpassen basierend auf der Bildgröße
+        if (math.sqrt(area) > math.sqrt(width * height)/6) & (math.sqrt(area) < math.sqrt(width * height)/3):
             # Schwerpunkte berechnen
             moments = cv2.moments(contour)
             if moments["m00"] != 0:
