@@ -143,9 +143,6 @@ if __name__ == "__main__":
             main(frame)
             time.sleep(0.3)
 
-            if cv2.waitKey(1) & 0xFF == 27:
-                break
-
         # Ressourcen freigeben
         cap.release()
         cv2.destroyAllWindows()

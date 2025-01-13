@@ -70,7 +70,7 @@ def draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame,
     ax4.axis("off")
 
     # Add the keypress event
-    fig.canvas.mpl_connect('key_press_event', close_plot)
+    #fig.canvas.mpl_connect('key_press_event', close_plot)
 
     # Zeige das Layout
     plt.tight_layout()

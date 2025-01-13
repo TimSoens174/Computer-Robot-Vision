@@ -259,7 +259,7 @@ def color_detection(image, center_point):
         "Weiss": [(np.array([0, 0, 160]), np.array([180, 20, 255]))],
     }
 
-    color = "none"
+    color = None
     for farbe, grenzen in farb_bereiche.items():
         for untere_grenze, obere_grenze in grenzen:
             if (untere_grenze[0] <= average_hue <= obere_grenze[0] and
@@ -267,7 +267,7 @@ def color_detection(image, center_point):
                 untere_grenze[2] <= average_value <= obere_grenze[2]):
                 color = farbe
                 break
-        if color != "none":
+        if color != None:
             break
 
     return color
