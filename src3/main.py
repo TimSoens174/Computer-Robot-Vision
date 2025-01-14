@@ -40,10 +40,10 @@ def main(image):
     croped_reduced_outer_grey_frame = ip.reduce_boundingbox(cropped_outer_grey_frame, OUTER_GREY_FRAME_FAKTOR)
     croped_inner_grey_frame = ip.reduce_boundingbox(croped_reduced_outer_grey_frame, INNER_GREY_FRAME_FAKTOR)
 
-    # Zeichne die Bounding Boxen (grün)
-    # debug_cropped_image = cropped_image.copy()
-    # cv2.rectangle(debug_cropped_image, (croped_reduced_outer_grey_frame[0],croped_reduced_outer_grey_frame[1]), (croped_reduced_outer_grey_frame[0]+croped_reduced_outer_grey_frame[2],croped_reduced_outer_grey_frame[1]+croped_reduced_outer_grey_frame[3]), (0, 255, 0), 2)
-    # cv2.rectangle(debug_cropped_image, (croped_inner_grey_frame[0],croped_inner_grey_frame[1]), (croped_inner_grey_frame[0]+croped_inner_grey_frame[2],croped_inner_grey_frame[1]+croped_inner_grey_frame[3]), (0, 255,0), 2)
+    # # Zeichne die Bounding Boxen (grün)
+    # debug_cropped_image = image.copy()
+    # cv2.rectangle(debug_cropped_image, (outer_grey_frame[0],outer_grey_frame[1]), (outer_grey_frame[0]+outer_grey_frame[2],outer_grey_frame[1]+outer_grey_frame[3]), (0, 255, 0), 2)
+    # #cv2.rectangle(debug_cropped_image, (croped_inner_grey_frame[0],croped_inner_grey_frame[1]), (croped_inner_grey_frame[0]+croped_inner_grey_frame[2],croped_inner_grey_frame[1]+croped_inner_grey_frame[3]), (0, 255,0), 2)
     # cv2.imshow('Cropped Image',debug_cropped_image)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
@@ -118,8 +118,13 @@ def main(image):
     for pos, entry in sorted_final_dict:
         print(f"Position: {pos}, Entry: {entry}")
 
-    # Zeige die Bilder zusammen  
-    utils.draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame, reduced_outer_grey_frame, inner_grey_frame, final_dict)
+    # Zeige die Bilder zusammen
+    try: 
+        utils.draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame, reduced_outer_grey_frame, inner_grey_frame, final_dict)
+    except Exception as e:
+        print("Error: Drawing images failed.")
+        print(e)
+        return
     
 
 if __name__ == "__main__":

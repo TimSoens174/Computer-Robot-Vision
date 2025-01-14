@@ -80,8 +80,8 @@ def correctImage(image, ground_thruth, outer_correction_frame, inner_correction_
     corrected_image[:, :, 2] = np.clip((image[:, :, 2]/c_0 - c_r), 0, 255)  # R
 
     
-    #print(f"Korrekturfaktoren:")
-    #print(f"C_B: {c_b:.2f}, C_G: {c_g:.2f}, C_R: {c_r:.2f}, C_0: {c_0:.2f}")
+    print(f"Korrekturfaktoren:")
+    print(f"C_B: {c_b:.2f}, C_G: {c_g:.2f}, C_R: {c_r:.2f}, C_0: {c_0:.2f}")
     return corrected_image
 
 def showHistogram(original_image, corrected_image, outer_correction_frame, inner_correction_frame):

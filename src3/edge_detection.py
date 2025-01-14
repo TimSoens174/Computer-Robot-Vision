@@ -10,7 +10,7 @@ def edge_detection(image):
 
     # Step 1: Threshold for Black Regions
     # Black pixels will have low intensity in grayscale
-    _, black_mask = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV)
+    _, black_mask = cv2.threshold(gray, 40, 255, cv2.THRESH_BINARY_INV)
 
     # Display the Black Mask
     # plt.figure(figsize=(6, 6))
