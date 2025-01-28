@@ -25,7 +25,7 @@ def getMaskPixels(image, outer_correction_frame, inner_correction_frame):
     return pixels
 
 
-def getCorrectionValues(input_image, Box, smallBox):
+def getImageValues(input_image, Box, smallBox):
     """
     Calculate the standard deviations and peak histogram values for the blue, green, and red channels 
     of the pixels within a specified region of an image.
@@ -66,7 +66,7 @@ def correctImage(image, ground_thruth, outer_correction_frame, inner_correction_
     """
     
     # Korrekturwerte berechnen
-    correction_values = getCorrectionValues(image, outer_correction_frame, inner_correction_frame)
+    correction_values = getImageValues(image, outer_correction_frame, inner_correction_frame)
 
     corrected_image = image.copy()
     
@@ -80,9 +80,9 @@ def correctImage(image, ground_thruth, outer_correction_frame, inner_correction_
     corrected_image[:, :, 2] = np.clip((image[:, :, 2]/c_0 - c_r), 0, 255)  # R
 
     
-    print(f"Korrekturfaktoren:")
-    print(f"C_B: {c_b:.2f}, C_G: {c_g:.2f}, C_R: {c_r:.2f}, C_0: {c_0:.2f}")
-    return corrected_image
+    #print(f"Korrekturfaktoren:")
+    #print(f"C_B: {c_b:.2f}, C_G: {c_g:.2f}, C_R: {c_r:.2f}, C_0: {c_0:.2f}")
+    return corrected_image, [c_0, c_r, c_g, c_b]
 
 def showHistogram(original_image, corrected_image, outer_correction_frame, inner_correction_frame):
     """
@@ -207,25 +207,6 @@ def color_filter(image):
                 "grid_position": None,
                 "average_hue": durchschnittlicher_hue
             })
-
-            # # Bounding-Box zeichnen und Farbe beschriften
-            # farben_rgb = {
-            #     "Rot": (0, 0, 255),
-            #     "Blau": (255, 0, 0),
-            #     "Gelb": (0, 255, 255),
-            #     "Grun": (0, 255, 0),
-            #     "Orange": (0, 165, 255),
-            #     "Weiss": (255, 255, 255),
-            # }
-            # cv2.rectangle(ergebnisbild, (x, y), (x + w, y + h), farben_rgb[farbe], 2)
-            # cv2.putText(ergebnisbild, f"{farbe}: {int(durchschnittlicher_hue)}", 
-            #             (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, farben_rgb[farbe], 2)
-
-    # Ergebnisse ausgeben
-    #print("Gefundene Objekte ohne Kinder:")
-    #for i, obj in enumerate(ergebnisse, 1):
-    #    print(f"Objekt {i}: Farbe={obj['Farbe']}, X={obj['x']}, Y={obj['y']}, "
-    #          f"Breite={obj['width']}, Höhe={obj['height']}, Durchschnittlicher Hue={obj['average_hue']:.2f}")
     return ergebnisse, combined_mask
 
 

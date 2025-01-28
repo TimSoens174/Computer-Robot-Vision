@@ -1,8 +1,9 @@
 import cv2
 import matplotlib.pyplot as plt
 import pandas as pd
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-def draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame, reduced_outer_grey_frame, inner_grey_frame, final_dict):
+def draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame, reduced_outer_grey_frame, inner_grey_frame, final_dict, correction_values):
     # Erstelle ein neues Bild für die Anzeige
     fig = plt.figure(figsize=(12, 12))
     grid = fig.add_gridspec(3, 2, width_ratios=[1, 2], height_ratios=[1, 1, 1])
@@ -38,7 +39,6 @@ def draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame,
     ax1.set_title("Processed Image")
     ax1.axis("off")
 
-    # Spalte 2, unteres 1/3: Tabelle mit der Legende
     ax2 = fig.add_subplot(grid[2, 1])
     legend_data = {
         "Position": [],
@@ -63,6 +63,25 @@ def draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame,
     # Begrenze die Breite der Tabelle
     for key, cell in table.get_celld().items():
         cell.set_width(0.2)  # Setze die Breite jeder Zelle auf 0.2
+        cell.set_height(0.12)  # Setze die Höhe jeder Zelle auf 0.2
+
+    # Create a new axis for the second table within the same grid cell
+    divider = make_axes_locatable(ax2)
+    ax3 = divider.append_axes("bottom", size="70%", pad=0.05)  # Reduced pad value to decrease the distance
+    ax3.axis("off")
+    rounded_correction_values = [round(value, 2) for value in correction_values]
+    col_labels = ['ĉ$_0$', 'ĉ$_r$', 'ĉ$_g$', 'ĉ$_b$']
+    table2 = ax3.table(cellText=[rounded_correction_values], colLabels=col_labels, cellLoc='center', loc='center')
+    table2.auto_set_font_size(False)
+    table2.set_fontsize(10)
+    table2.scale(1.2, 1.2)
+
+    # Begrenze die Breite der Tabelle
+    for key, cell in table2.get_celld().items():
+        cell.set_width(0.2)  # Setze die Breite jeder Zelle auf 0.2
+        cell.set_height(0.2)  # Setze die Höhe jeder Zelle auf 0.2
+
+  
 
     # Spalte 1, Reihe 1: Korrigiertes Bild
     ax3 = fig.add_subplot(grid[0, 0])

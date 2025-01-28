@@ -8,8 +8,10 @@ import grid_sorting as sorting
 import utils
 import time
 
-livecam = True
+livecam = False
 camera = 0
+image_path = os.path.join("Pictures", "Picture 7.jpg") # 5,11
+
 b = 20
 color_correction = True
 sigma_b = 18.84
@@ -48,7 +50,7 @@ def main(image):
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
 
-    corrected_image = color.correctImage(cropped_image, color_correction_ground_truth, croped_reduced_outer_grey_frame, croped_inner_grey_frame)
+    corrected_image, correction_values = color.correctImage(cropped_image, color_correction_ground_truth, croped_reduced_outer_grey_frame, croped_inner_grey_frame)
     if corrected_image is None:
         print("Error: Image correction failed.")
         return
@@ -120,7 +122,7 @@ def main(image):
 
     # Zeige die Bilder zusammen
     try: 
-        utils.draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame, reduced_outer_grey_frame, inner_grey_frame, final_dict)
+        utils.draw_images(image, corrected_image, edge_mask, color_mask, outer_grey_frame, reduced_outer_grey_frame, inner_grey_frame, final_dict, correction_values)
     except Exception as e:
         print("Error: Drawing images failed.")
         print(e)
@@ -128,8 +130,7 @@ def main(image):
     
 
 if __name__ == "__main__":
-    
-    image_path = os.path.join("Pictures2", "Picture 7.jpg") # 5,11
+
     image = cv2.imread(image_path)
     
     if livecam:
