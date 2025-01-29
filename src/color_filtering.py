@@ -139,9 +139,9 @@ def color_filter(image):
        "Rot": [(np.array([0, 90, 70]), np.array([5, 255, 255])),
                 (np.array([160, 90, 70]), np.array([180, 255, 255]))],
         "Blau": [(np.array([95, 130, 70]), np.array([150, 255, 255]))],
-        "Gelb": [(np.array([20, 20, 100]), np.array([45, 255, 255]))],
+        "Gelb": [(np.array([20, 50, 100]), np.array([44, 255, 255]))],
         "Grun": [(np.array([45, 50, 70]), np.array([95, 255, 255]))],
-        "Orange": [(np.array([5, 100, 70]), np.array([20, 255, 255]))],
+        "Orange": [(np.array([5, 100, 70]), np.array([19, 255, 255]))],
         "Weiss": [(np.array([0, 0, 160]), np.array([180, 50, 255]))],
     }
 
@@ -155,9 +155,8 @@ def color_filter(image):
     combined_mask = np.zeros((height, width), dtype=np.uint8)
 
     # Über alle Farben iterieren
-    i = 0
     for farbe, grenzen in farb_bereiche.items():
-        i =i+1
+
         # Maske für die Farbe erstellen
         maske = np.zeros(hsv_bild.shape[:2], dtype=np.uint8)
         for untere_grenze, obere_grenze in grenzen:
@@ -166,9 +165,9 @@ def color_filter(image):
         maske = cv2.morphologyEx(maske, cv2.MORPH_OPEN, np.ones((5,5),np.uint8))
         maske = cv2.morphologyEx(maske, cv2.MORPH_CLOSE, np.ones((5,5),np.uint8))
 
-        #if farbe == "Gelb":
-        #    cv2.imshow(f"test {i}", maske)
-        #   cv2.waitKey(0)
+        # if farbe == "Gelb":
+        #    cv2.imshow(f"test", maske)
+        #    cv2.waitKey(0)
         #    cv2.destroyAllWindows()
 
         
