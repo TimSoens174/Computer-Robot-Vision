@@ -13,13 +13,13 @@ def edge_detection(image):
     _, black_mask = cv2.threshold(gray, 40, 255, cv2.THRESH_BINARY_INV)
 
     # Display the Black Mask
-    # plt.figure(figsize=(6, 6))
-    # plt.imshow(black_mask, cmap='gray')
-    # plt.title("Black Mask")
-    # plt.axis("off")
-    # plt.show()
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    plt.figure(figsize=(6, 6))
+    plt.imshow(black_mask, cmap='gray')
+    plt.title("Black Mask")
+    plt.axis("off")
+    plt.show()
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
     # Step 2: Morphological Operations to Clean the Mask (with stronger effect)
     # Create a larger kernel to increase intensity
@@ -38,14 +38,17 @@ def edge_detection(image):
     # Combine the cleaned mask with the gradient mask to highlight edges
     clean_mask = cv2.bitwise_or(clean_mask, gradient_mask)
 
+    # Convert the cleaned mask to BGR for colored drawing
+    clean_mask_bgr = cv2.cvtColor(clean_mask, cv2.COLOR_GRAY2BGR)
+
     # Display the cleaned and sharpened mask
-    # plt.figure(figsize=(6, 6))
-    # plt.imshow(clean_mask, cmap='gray')
-    # plt.title("Cleaned and Sharpened Mask")
-    # plt.axis("off")
-    # plt.show()
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    plt.figure(figsize=(6, 6))
+    plt.imshow(clean_mask, cmap='gray')
+    plt.title("Cleaned and Sharpened Mask")
+    plt.axis("off")
+    plt.show()
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
     # Step 3: Find Contours in the Cleaned Mask
     contours, _ = cv2.findContours(clean_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -86,19 +89,24 @@ def edge_detection(image):
             }
             list_dict_edge.append(valid_element)
 
+    # # DEBUG Draw the Detected Elements with Bounding Boxes and Focus Points
+    # for element in list_dict_edge:
+    #     x, y, w, h = element["bbox"]
+    #     cx, cy = element["area_focus_point"]
+    #     cv2.rectangle(clean_mask_bgr, (x, y), (x + w, y + h), (255, 0, 0), 2)  # Draw bounding box
+    #     if cx is not None and cy is not None:
+    #         cv2.circle(clean_mask_bgr, (cx, cy), 5, (0, 255, 0), -1)  # Draw area focus point
 
-        # Step 5: Draw the Detected Rectangles on the Original Image
-        # output_image = image.copy()
-        # for rect in valid_rectangles:
-        #     cv2.drawContours(output_image, [rect], -1, (0, 255, 0), 2)
-
-        # Display the Result
-        # plt.figure(figsize=(6, 6))
-        # plt.imshow(cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB))
-        # plt.title("Detected Rectangles (Colored Squares)")
-        # plt.axis("off")
-        # plt.show()
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
+    # # Display the Result
+    # plt.figure(figsize=(6, 6))
+    # plt.imshow(cv2.cvtColor(clean_mask_bgr, cv2.COLOR_BGR2RGB))
+    # plt.title("Detected Elements with Bounding Boxes and Focus Points")
+    # plt.axis("off")
+    # plt.show()
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    # plt.show()
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
         
     return list_dict_edge, clean_mask
