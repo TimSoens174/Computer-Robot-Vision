@@ -1,0 +1,33 @@
+imread(image)
+
+hellgrauer Rahmen erkennen
+
+crop image auf inneren hellgrauen Rahmen
+
+Farbkorrektur
+
+ dict_structre(
+    "bbox" = boundingbox
+    "color" = color
+    "grid_position" = grid_position (integer 1-9)
+ )
+
+dict_color((boundingbox, Farbe),...) = Color.py
+    # all colors, sorted by size and formFactor
+
+dict_edge(boundingbox,...) = edge_detection.py
+    # all colors, sorted by size and formFactor
+
+sort_box (dict_color, dict_edge)
+    sort boundingbox after x,y
+
+    check on which grid position box is located
+    
+    check that each dict has max size of 9
+
+    if dicts cover all 9 positions
+        mark from which detection or both (only one needed)
+    else
+        compensate missing one via geometry
+        find color inside generated boundingbox
+        mark as compensated
